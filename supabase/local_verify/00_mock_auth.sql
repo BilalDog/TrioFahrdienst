@@ -18,6 +18,13 @@ language sql stable as $$
   select nullif(current_setting('app.current_user_id', true), '')::uuid;
 $$;
 
+-- Mock für auth.jwt(): echtes Supabase liefert hier die JWT-Claims als jsonb
+-- (inkl. "email"). Testskripte setzen `app.current_user_email` passend.
+create or replace function auth.jwt() returns jsonb
+language sql stable as $$
+  select jsonb_build_object('email', nullif(current_setting('app.current_user_email', true), ''));
+$$;
+
 -- Realtime-Publication existiert in echten Supabase-Projekten bereits;
 -- hier für Migration 0004 manuell anlegen.
 create publication supabase_realtime;

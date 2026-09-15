@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 
@@ -70,6 +71,12 @@ export default function LoginPage() {
             {submitting ? "Anmelden…" : "Anmelden"}
           </button>
         </form>
+        <Link
+          href="/register"
+          className="mt-4 block text-center text-sm text-slate-500 underline"
+        >
+          Konto erstellen
+        </Link>
       </div>
     </div>
   );

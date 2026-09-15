@@ -17,6 +17,8 @@ export default function Home() {
     }
     if (profile) {
       router.replace(roleHomePath(profile.role));
+    } else {
+      router.replace("/complete-profile");
     }
   }, [loading, session, profile, router]);
 

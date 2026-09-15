@@ -25,6 +25,7 @@ Diese App braucht ein Supabase-Projekt (Postgres + Auth + Realtime):
    - `0002_rls.sql` — Row-Level-Security (Admin/Fahrer/Mitarbeiter-Rechte)
    - `0003_invite_linking.sql` — verknüpft angenommene Einladungen automatisch
    - `0004_realtime.sql` — aktiviert Live-Updates für die vier Tabellen
+   - `0005_self_registration.sql` — erlaubt die Selbstregistrierung (siehe unten)
 3. Optional `supabase/seed.sql` ausführen für Beispieldaten.
 4. In den Supabase-Auth-Einstellungen die **Redirect URL** auf
    `<deine-domain>/invite` setzen (und für lokale Entwicklung zusätzlich
@@ -59,9 +60,42 @@ npm run dev
 | Fahrer | Alles lesend einsehen (alle Fahrer, alle Mitarbeiter, Wochenplan) |
 | Mitarbeiter | Nur die eigene Schicht + passende(r) Fahrer mit Kontaktdaten |
 
-Neue Personen werden von einem Admin angelegt (Name, E-Mail, Kontakt) und
-erhalten danach über den "Einladen"-Button eine E-Mail mit Link, über den sie
-selbst ein Passwort setzen.
+Es gibt zwei Wege, wie Fahrer und Mitarbeiter ins System kommen (beide
+funktionieren parallel):
+
+1. **Admin legt an**: Admin trägt Name/E-Mail/Kontakt unter `/admin/drivers`
+   bzw. `/admin/employees` ein und klickt "Einladen" — die Person bekommt eine
+   E-Mail mit Link, über den sie selbst ein Passwort setzt. Konto ist sofort
+   aktiv.
+2. **Selbstregistrierung**: Über den Button "Konto erstellen" auf der
+   Login-Seite meldet sich die Person selbst mit E-Mail + Passwort an (Rolle
+   **Fahrer oder Mitarbeiter** wählbar, **Admin bewusst nicht**), vervollständigt
+   danach ihr Profil (`/complete-profile`). Das Konto ist zunächst **inaktiv**
+   und muss von einem Admin über den "Aktivieren"-Button freigeschaltet
+   werden, bevor die Person Daten sehen kann — verhindert, dass irgendjemand
+   mit der Login-URL sofort Namen/Telefonnummern einsehen könnte.
+
+### Ersten Admin-Account anlegen
+
+Der allererste Admin kann sich **nicht** selbst registrieren (Admin ist in
+der Selbstregistrierung absichtlich nicht wählbar) und muss deshalb einmalig
+manuell im Supabase-Dashboard angelegt werden:
+
+1. Im SQL-Editor, mit der echten Admin-E-Mail-Adresse:
+   ```sql
+   insert into public.profiles (role, full_name, email)
+   values ('admin', 'Dein Name', 'deine-echte@email.de');
+   ```
+2. Unter Authentication → Users → "Invite user" einen Nutzer mit **exakt
+   derselben E-Mail-Adresse** einladen. Der `on_auth_user_created`-Trigger
+   (0003) verknüpft die neue Auth-Identität automatisch per E-Mail-Match mit
+   der profiles-Zeile aus Schritt 1.
+3. Einladungs-E-Mail öffnen, Link anklicken, Passwort setzen — landet
+   automatisch im Admin-Dashboard.
+
+Ab jetzt läuft alles Weitere ganz normal über die App (Admin lädt weitere
+Personen ein, oder sie registrieren sich selbst und werden vom Admin
+freigeschaltet).
 
 ## Struktur
 

@@ -22,7 +22,11 @@ export function RequireRole({
       router.replace("/login");
       return;
     }
-    if (profile && !allow.includes(profile.role)) {
+    if (!profile) {
+      router.replace("/complete-profile");
+      return;
+    }
+    if (!allow.includes(profile.role)) {
       router.replace(roleHomePath(profile.role));
     }
   }, [loading, session, profile, allow, router]);
@@ -34,16 +38,14 @@ export function RequireRole({
     return <CenteredMessage text="Weiterleitung zum Login…" />;
   }
   if (!profile) {
-    return (
-      <CenteredMessage text="Dein Konto ist noch keiner Person zugeordnet. Bitte wende dich an einen Admin." />
-    );
+    return <CenteredMessage text="Weiterleitung…" />;
   }
   if (!allow.includes(profile.role)) {
     return <CenteredMessage text="Weiterleitung…" />;
   }
   if (!profile.is_active) {
     return (
-      <CenteredMessage text="Dein Konto ist deaktiviert. Bitte wende dich an einen Admin." />
+      <CenteredMessage text="Dein Konto ist noch nicht freigeschaltet. Bitte wende dich an einen Admin." />
     );
   }
 
