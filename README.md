@@ -73,8 +73,26 @@ src/lib/supabase/  Supabase-Client + Datenbank-Typen
 supabase/          SQL-Migrationen, Seed-Daten
 ```
 
-## Deployment
+## Deployment über Vercel (verbunden mit GitHub)
 
-Die App ist eine ganz normale Next.js-Webseite (kein Docker/Capacitor nötig)
-und kann z. B. auf [Vercel](https://vercel.com) deployed werden — Umgebungs-
-variablen dort genauso setzen wie in `.env.local`.
+Die App ist eine ganz normale Next.js-Webseite (kein Docker/Capacitor nötig).
+Reines GitHub Pages funktioniert **nicht**, da `/api/invite` echten Server-
+Code braucht (hält den geheimen Service-Role-Key) — GitHub Pages liefert nur
+statische Dateien aus. Stattdessen: [Vercel](https://vercel.com), automatisch
+mit dem GitHub-Repo verbunden — führt echten Server-Code aus und deployed bei
+jedem Push automatisch neu.
+
+1. Mit dem GitHub-Account auf [vercel.com](https://vercel.com) einloggen →
+   "Add New Project" → Repository `BilalDog/TrioFahrdienst` importieren.
+   Next.js wird automatisch erkannt (kein `vercel.json` nötig).
+2. Als Production-Branch `claude/festive-feynman-l4nwqx` wählen (oder zuvor
+   in den Standard-Branch mergen).
+3. Unter Project Settings → Environment Variables dieselben drei Variablen
+   wie in `.env.local.example` setzen (`SUPABASE_SERVICE_ROLE_KEY` als
+   Secret markieren). Voraussetzung: das Supabase-Projekt aus Schritt 1 oben
+   existiert bereits.
+4. Deploy läuft automatisch; die App ist danach unter einer
+   `*.vercel.app`-URL live.
+5. In den Supabase-Auth-Einstellungen die Redirect-URL um
+   `<vercel-domain>/invite` ergänzen, sonst funktioniert der Einladungslink
+   in Produktion nicht.
